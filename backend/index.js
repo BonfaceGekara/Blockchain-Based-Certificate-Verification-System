@@ -25,10 +25,12 @@ app.use('/api/verifier', verifierRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payment', mpesaRoutes);
 
+const port = process.env.PORT || 3000;
+
 mongoose.connect(process.env.MONGODB_URL)
     .then(
         () => {
-            app.listen(3000);
+            app.listen(port);
             console.log('MongoDB connected!');
         }
     )

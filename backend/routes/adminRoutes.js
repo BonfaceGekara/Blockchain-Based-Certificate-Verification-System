@@ -1,7 +1,7 @@
 import express from 'express';
 import { requireAdmin } from '../middleware/requireAdmin.js';
 import verifyToken from '../middleware/verifyToken.js';
-import { getAllUsers, getUser, editUser, deleteUser, addCertificate, getAllCerts, getCertificate, deleteCertificate, revokeCertificate, toggleUserActivation } from '../controllers/adminControllers.js';
+import { getAllUsers, getUser, editUser, deleteUser, addCertificate, getAllCerts, getCertificate, deleteCertificate, revokeCertificate, toggleUserActivation, getSingleVerification, deleteVerification, getAllVerifications } from '../controllers/adminControllers.js';
 import College from '../models/College.js';
 import Department from '../models/Department.js';
 import Programme from '../models/Programme.js';
@@ -27,6 +27,12 @@ router.delete('/users/:id', verifyToken, requireAdmin, deleteUser);
 router.put('/certificate/:id', verifyToken, requireAdmin, revokeCertificate);
 
 router.delete('/certificate/:id', verifyToken, requireAdmin, deleteCertificate);
+
+router.get('/verifications', verifyToken, requireAdmin, getAllVerifications);
+
+router.get('/verifications/:id', verifyToken, requireAdmin, getSingleVerification);
+
+router.delete('/verifications/:id', verifyToken, requireAdmin, deleteVerification);
 
 router.get('/colleges', async (req, res) => {
     try {

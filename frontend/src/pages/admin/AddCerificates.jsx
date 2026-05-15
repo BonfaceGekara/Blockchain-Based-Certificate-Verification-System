@@ -67,6 +67,7 @@ const AddCerificates = () => {
         } catch (err) {
             toast.error(err.response?.data?.message || "Certificate not added!");
             console.log(err)
+            setLoading(false)
         } finally {
             setLoading(false);
         }
@@ -272,7 +273,7 @@ const AddCerificates = () => {
                             type="submit"
                             className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition"
                         >
-                            Save Certificate
+                            {!loading ? 'Save Certificate' : 'Saving'}
                         </button>
                     </div>
 

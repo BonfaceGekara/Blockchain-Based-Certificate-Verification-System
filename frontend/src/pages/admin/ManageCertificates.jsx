@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEye, FaTrash, FaBan } from "react-icons/fa";
 import toast from "react-hot-toast";
+import Pagination from "../../components/Pagination";
 
 const ManageCertificates = () => {
 
@@ -9,6 +10,8 @@ const ManageCertificates = () => {
     const [filteredCertificates, setFilteredCertificates] = useState([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
 
     const fetchCertificates = async () => {
         try {
@@ -30,7 +33,6 @@ const ManageCertificates = () => {
         fetchCertificates();
     }, []);
 
-    // Search
     useEffect(() => {
         let filtered = certificates;
 
@@ -47,7 +49,7 @@ const ManageCertificates = () => {
         }
 
         setFilteredCertificates(filtered);
-
+        setCurrentPage(1);
     }, [search, certificates]);
 
     const handleDelete = async (id) => {
@@ -65,7 +67,6 @@ const ManageCertificates = () => {
         }
     };
 
-    //revoke
     const handleRevoke = async (id) => {
         try {
             await axios.put(`/api/admin/certificate/${id}`,
@@ -78,6 +79,10 @@ const ManageCertificates = () => {
             toast.error("Revoke failed");
         }
     };
+
+    const lastPostIndex = currentPage * itemsPerPage;
+    const firstPostIndex = lastPostIndex - itemsPerPage;
+    const currentCertificates = filteredCertificates.slice(firstPostIndex, lastPostIndex);
 
     return (
         <div className="p-6 bg-gray-100 min-h-screen w-full">
@@ -120,7 +125,7 @@ const ManageCertificates = () => {
                             </thead>
 
                             <tbody>
-                                {filteredCertificates.map((cert) => (
+                                {currentCertificates.map((cert) => (
                                     <tr
                                         key={cert._id}
                                         className="border-t border-gray-400 hover:bg-gray-200 transition"
@@ -179,6 +184,12 @@ const ManageCertificates = () => {
                                 ))}
                             </tbody>
                         </table>
+                        <Pagination 
+                            totalItems={filteredCertificates.length} 
+                            itemsPerPage={itemsPerPage} 
+                            currentPage={currentPage} 
+                            setCurrentPage={setCurrentPage} 
+                        />
                     </div>
                 )}
             </div>

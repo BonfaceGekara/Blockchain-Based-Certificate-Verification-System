@@ -3,6 +3,8 @@ import { FaEye, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Pagination from "../../components/Pagination";
+import toast from "react-hot-toast";
+import AuthFooter from "../../components/AuthFooter";
 
 const Verifications = () => {
 
@@ -10,6 +12,7 @@ const Verifications = () => {
 
     const [verifications, setVerifications] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [deletingId, setDeletingId] = useState(null)
 
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -59,16 +62,27 @@ const Verifications = () => {
 
     const currentVerifications = filtered.slice(firstPostIndex, lastPostIndex);
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id, searchedNumber) => {
+
+        const confirmDelete = window.confirm(`Are you sure you want to delete verification for "${searchedNumber}"?`);
+
+        if (!confirmDelete) return;
+
         try {
+            setDeletingId(id);
+
             await axios.delete(`/api/verifier/verifications/${id}`, {
                 withCredentials: true
             });
 
             setVerifications(prev => prev.filter(v => v._id !== id));
+            toast.success('Verification record deleted successfully');
 
         } catch (err) {
             console.log(err);
+            toast.error(err.response?.data?.message || 'Failed to delete verification');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -175,8 +189,17 @@ const Verifications = () => {
                                                         <FaEye />
                                                     </button>
 
-                                                    <button className="text-red-500 hover:text-red-700">
-                                                        <FaTrash />
+                                                    <button
+                                                        onClick={() => handleDelete(ver._id, ver.searchedNumber)}
+                                                        className="text-red-500 hover:text-red-700"
+                                                        disabled={deletingId === ver._id}
+                                                        title="Delete"
+                                                    >
+                                                        {deletingId === ver._id ? (
+                                                            <div className="w-4 h-4 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>
+                                                        ) : (
+                                                            <FaTrash />
+                                                        )}
                                                     </button>
 
                                                 </div>
@@ -194,13 +217,15 @@ const Verifications = () => {
                             </tbody>
 
                         </table>
-                        
+
                         <Pagination totalItems={filtered.length} itemsPerPage={itemsPerPage} currentPage={currentPage} setCurrentPage={setCurrentPage} />
 
                     </div>
                 )}
 
             </div>
+
+            <AuthFooter />
 
         </div>
     );

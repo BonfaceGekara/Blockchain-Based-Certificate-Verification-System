@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { MdVerified, MdPayment } from "react-icons/md";
+import AuthFooter from "../../components/AuthFooter";
 
 const Payment = () => {
 
@@ -8,12 +9,10 @@ const Payment = () => {
     return (
         <div className="p-6 bg-gray-100 min-h-screen">
 
-            {/* HEADER */}
             <h1 className="text-2xl font-bold text-gray-800 mb-6">
                 Subscription
             </h1>
 
-            {/* CURRENT PLAN */}
             <div className="bg-white p-6 rounded-2xl shadow mb-8 flex justify-between items-center">
                 <div>
                     <p className="text-gray-500 text-sm">Current Plan</p>
@@ -27,11 +26,9 @@ const Payment = () => {
                 </span>
             </div>
 
-            {/* PLANS */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                {/* PAY PER USE */}
-                <div className="bg-white p-6 rounded-2xl shadow border">
+                <div className="bg-white p-6 rounded-2xl shadow border border-green-300">
 
                     <div className="flex items-center gap-3 mb-4">
                         <MdPayment className="text-blue-600 text-2xl" />
@@ -54,22 +51,16 @@ const Payment = () => {
                         <li>Pay only when needed</li>
                     </ul>
 
-                    <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
-                        Use This Plan
-                    </button>
-
                 </div>
 
-                {/* SUBSCRIPTION PLAN */}
-                <div className="bg-white p-6 rounded-2xl shadow border-2 border-green-500 relative">
+                <div className="bg-white p-6 rounded-2xl shadow border-2 border-gray-500 relative">
 
-                    {/* RECOMMENDED TAG */}
-                    <span className="absolute top-3 right-3 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                        Recommended
+                    <span className="absolute top-3 right-3 bg-gray-500 text-white text-xs px-2 py-1 rounded-full">
+                        Coming soon
                     </span>
 
                     <div className="flex items-center gap-3 mb-4">
-                        <MdVerified className="text-green-600 text-2xl" />
+                        <MdVerified className="text-gray-600 text-2xl" />
                         <h2 className="text-lg font-semibold">
                             Monthly Subscription
                         </h2>
@@ -88,13 +79,15 @@ const Payment = () => {
                         <li>Faster processing</li>
                     </ul>
 
-                    <button className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                    <button className="disabled w-full bg-gray-300 text-white py-2 rounded-lg hover:bg-gray-300">
                         Upgrade Plan
                     </button>
 
                 </div>
 
             </div>
+
+            <AuthFooter />
 
         </div>
     );

@@ -13,10 +13,6 @@ const verificationSchema = new mongoose.Schema(
             required: true
         },
 
-        paymentNumber: {
-            type: String,
-            required: true
-        },
 
         certificateId: {
             type: mongoose.Schema.Types.ObjectId,

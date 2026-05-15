@@ -2,6 +2,7 @@ import Certificate from '../models/Certificate.js';
 import User from '../models/User.js';
 import crypto from 'crypto';
 import { storeCertificateHash } from '../blockchain/blockchainService.ts';
+import Verification from '../models/Verification.js';
 
 export const getAllUsers = async (req, res) => {
     try {
@@ -142,7 +143,7 @@ export const toggleUserActivation = async (req, res) => {
             message: 'Update failed!'
         })
     }
-}
+};
 
 export const editUser = async (req, res) => {
     try {
@@ -256,6 +257,48 @@ export const deleteCertificate = async (req, res) => {
         res.status(500).json({
             message: "Server error"
         });
+    }
+};
+
+export const getAllVerifications = async (req, res) => {
+
+    try {
+        const verifications = await Verification.find()
+            .populate('verifierId', 'name email phone')
+            .populate('certificateId', 'title certificateNumber')
+            .populate('paymentId', 'amount status')
+            .sort({ createdAt: -1 });
+        
+        res.json(verifications);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const deleteVerification = async (req, res) => {
+    try {
+        await Verification.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Verification log deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getSingleVerification = async (req, res) => {
+    try {
+        const verification = await Verification.findById(req.params.id)
+            .populate('verifierId', 'name email phone')
+            .populate('certificateId')
+            .populate('paymentId');
+        
+        if (!verification) {
+            return res.status(404).json({ message: 'Verification log not found' });
+        }
+        
+        res.json(verification);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 

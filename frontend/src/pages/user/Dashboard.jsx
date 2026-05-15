@@ -4,6 +4,7 @@ import { FaEye, FaTrash } from "react-icons/fa";
 import { AuthContext } from '../../context/authContext';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import AuthFooter from '../../components/AuthFooter';
 
 const Dashboard = () => {
 
@@ -201,6 +202,8 @@ const Dashboard = () => {
 				</div>
 
 			</div>
+
+			<AuthFooter />
 
 		</div>
 	)

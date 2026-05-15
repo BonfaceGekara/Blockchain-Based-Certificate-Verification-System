@@ -3,6 +3,7 @@ import axios from "axios";
 import { FaEye, FaTrash, FaBan, FaUserCheck } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import Pagination from "../../components/Pagination";
 
 const ManageUsers = () => {
 
@@ -12,6 +13,8 @@ const ManageUsers = () => {
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
 
     const getAllUsers = async () => {
         try {
@@ -49,6 +52,7 @@ const ManageUsers = () => {
         }
 
         setFilteredUsers(filtered);
+        setCurrentPage(1);
     }, [search, users]);
 
     const handleToggleStatus = async (id, isActive) => {
@@ -89,6 +93,10 @@ const ManageUsers = () => {
         }
     };
 
+    const lastPostIndex = currentPage * itemsPerPage;
+    const firstPostIndex = lastPostIndex - itemsPerPage;
+    const currentUsers = filteredUsers.slice(firstPostIndex, lastPostIndex);
+
     return (
         <div className="p-6 bg-gray-100 min-h-screen w-full">
 
@@ -128,7 +136,7 @@ const ManageUsers = () => {
                             </thead>
 
                             <tbody>
-                                {filteredUsers.map((user) => (
+                                {currentUsers.map((user) => (
                                     <tr
                                         key={user._id}
                                         className="border-t hover:bg-gray-200 transition"
@@ -192,6 +200,12 @@ const ManageUsers = () => {
                                 ))}
                             </tbody>
                         </table>
+                        <Pagination
+                            totalItems={filteredUsers.length}
+                            itemsPerPage={itemsPerPage}
+                            currentPage={currentPage}
+                            setCurrentPage={setCurrentPage}
+                        />
                     </div>
                 )}
             </div>

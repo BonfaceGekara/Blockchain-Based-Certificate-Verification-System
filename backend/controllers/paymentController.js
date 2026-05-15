@@ -1,75 +1,84 @@
-import Payment from "../models/Payment.js";
-import Certificate from "../models/Certificate.js";
-import { stkPush } from "../services/mpesaService.js";
+import axios from 'axios';
+import { generatePassword } from '../utils/password.js';
+import Payment from '../models/Payment.js';
 
 export const initiatePayment = async (req, res) => {
 
     try {
+       
+        const { phone, amount, certificateNumber } = req.body;
 
-        const { certificateNumber, phone } = req.body;
-        const amount = 1;
+        // Format phone number (ensure it starts with 254)
+        let formattedPhone = phone.toString().replace(/\D/g, '');
+        if (formattedPhone.startsWith('0')) {
+            formattedPhone = '254' + formattedPhone.substring(1);
+        } else if (formattedPhone.startsWith('254')) {
+            formattedPhone = formattedPhone;
+        } else {
+            return res.status(400).json({ error: "Invalid phone number format. Use 07XX or 2547XX" });
+        }
+        
+        // Validate amount
+        if (isNaN(amount) || amount <= 0) {
+            return res.status(400).json({ error: "Invalid amount" });
+        }
+        
+        const { password, timestamp } = generatePassword();
+        
+        const requestBody = {
+            BusinessShortCode: process.env.MPESA_SHORTCODE,
+            Password: password,
+            Timestamp: timestamp,
+            TransactionType: "CustomerPayBillOnline",
+            Amount: Math.round(amount),
+            PartyA: formattedPhone,
+            PartyB: process.env.MPESA_SHORTCODE,
+            PhoneNumber: formattedPhone,
+            CallBackURL: process.env.CALLBACK_URL,
+            AccountReference: 'Payment',
+            TransactionDesc: "Certificate Verification Payment"
+        };
 
-        const formattedPhone = phone.startsWith("0")
-            ? "254" + phone.slice(1)
-            : phone;
-
-        const stk = await stkPush(
-            formattedPhone,
-            amount || 1,
-            certificateNumber,
-            "Certificate Payment"
-        );
-
-        const payment = await Payment.create({
-            verifierId: req.user.id,
-            certificateNo: certificateNumber,
-            amount: amount || 1,
-            status: "pending",
-            transactionNo: stk.CheckoutRequestID,
-            paymentDate: new Date()
-        });
-
-        return res.status(200).json({
-            message: "STK sent to phone",
-            payment
-        });
-
-    } catch (err) {
-        console.log(err);
-        return res.status(500).json({
-            message: "Payment initiation failed"
-        });
-    }
-};
-
-export const mpesaCallback = async (req, res) => {
-
-    try {
-
-        const result = req.body?.Body?.stkCallback;
-
-        const checkoutId = result?.CheckoutRequestID;
-        const success = result?.ResultCode === 0;
-
-        const metadata = result?.CallbackMetadata?.Item || [];
-
-        const receipt = metadata.find(
-            item => item.Name === "MpesaReceiptNumber"
-        )?.Value;
-
-        await Payment.findOneAndUpdate(
-            { transactionNo: checkoutId },
+        const response = await axios.post(
+            'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
+            requestBody,
             {
-                status: success ? "complete" : "failed",
-                receiptNumber: receipt || null,
-                paymentDate: new Date()
+                headers: {
+                    Authorization: `Bearer ${req.access_token}`,
+                    'Content-Type': 'application/json'
+                }
             }
         );
+        
+        if (response.data.ResponseCode === "0") {
+            
+            const newPayment = new Payment({
+                verifierId: req.user.id || 'N/A',
+                certificateNo: certificateNumber,
+                amount: Math.round(amount),
+                status: 'pending',
+                transactionNo: response.data.CheckoutRequestID,
+                receiptNo: null,
+                paymentDate: null
+            });
 
-        return res.json({ ResultCode: 0 });
-
-    } catch (err) {
-        console.log(err);
-        return res.json({ ResultCode: 1 });
+            await newPayment.save();
+            
+            res.json({
+                success: true,
+                message: "STK Push sent successfully",
+                checkoutRequestID: response.data.CheckoutRequestID,
+                customerMessage: response.data.CustomerMessage
+            });
+        } else {
+            throw new Error(response.data.ResponseDescription);
+        }
+        
+    } catch (error) {
+        console.error('Payment initiation failed:', error.response?.data || error.message);
+        res.status(500).json({
+            error: "Payment initiation failed",
+            details: error.response?.data || error.message
+        });
     }
 };

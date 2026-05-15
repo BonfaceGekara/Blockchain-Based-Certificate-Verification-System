@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/verifier', verifierRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/payment', mpesaRoutes);
+app.use('/api/payments', mpesaRoutes);
 
 const port = process.env.PORT || 3000;
 
@@ -39,4 +39,4 @@ mongoose.connect(process.env.MONGODB_URL)
         (err) => {
             console.log(err);
         }
-    )
+    );

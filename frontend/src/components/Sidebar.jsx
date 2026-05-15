@@ -11,8 +11,7 @@ const Sidebar = ({ isOpen, role }) => {
         { name: 'Add Certificates', path: '/admin/addcertificates', icon: <MdAdd /> },
         { name: 'Manage Certificates', path: '/admin/manageCertificates', icon: <MdList /> },
         { name: 'Manage Users', path: '/admin/manageusers', icon: <MdPeople /> },
-        { name: 'Verification Logs', path: '/admin/manageusers', icon: <MdVerified /> },
-        { name: 'Financials', path: '/admin/manageusers', icon: <FaMoneyBill /> }
+        { name: 'Verification Logs', path: '/admin/verifications', icon: <MdVerified /> }
     ];
 
     const verifierMenu = [

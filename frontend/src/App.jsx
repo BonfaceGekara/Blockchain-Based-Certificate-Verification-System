@@ -27,6 +27,8 @@ import VerificationDetails from './pages/user/VerificationDetails.jsx';
 import Profile from './pages/user/Profile.jsx';
 import ActivateAccount from './pages/auth/ActivateAccount.jsx';
 import ResetPassword from './pages/auth/ResetPassword.jsx';
+import VerificationLogs from './pages/admin/VerificationLogs.jsx';
+import NotFound from './pages/NotFound.jsx';
 
 const App = () => {
 
@@ -189,8 +191,18 @@ const App = () => {
               </RoleRoute>
             }
           />
+          <Route
+            path='/admin/verifications'
+            element={
+              <RoleRoute role={['admin']}>
+                <VerificationLogs />
+              </RoleRoute>
+            }
+          />
 
         </Route>
+
+        <Route path='*' element={<NotFound />} />
 
       </Routes>
     </div>
